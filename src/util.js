@@ -1,0 +1,1 @@
+export const formatAsNumbers = numbers => numbers.split('\n').map(Number);
