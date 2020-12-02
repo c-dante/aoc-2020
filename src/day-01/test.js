@@ -1,5 +1,5 @@
 import { formatAsNumbers } from '../util.js';
-import { part1, part2 } from './day-01.js';
+import { part1, part2 } from './index.js';
 
 const input = `1721
 979

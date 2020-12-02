@@ -49,7 +49,7 @@ export const part2 = (input) => {
 			// skip this failure
 		}
 	}
-	console.log(third, ...output);
+
 	return third * output[0] * output[1];
 };
 
