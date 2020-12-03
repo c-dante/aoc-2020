@@ -2,7 +2,6 @@ import fs from 'fs';
 import fp from 'lodash/fp.js';
 
 const tree = '#';
-const empty = '.';
 
 const process = fp.flow(
 	fp.split('\n'),
@@ -24,8 +23,6 @@ const getTrees = (processed, x, y) => {
 }
 
 export const part1 = (input) => {
-	const x = 3;
-	const y = 1;
 	const processed = process(input);
 	return getTrees(processed, 3, 1);
 };
