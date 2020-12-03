@@ -3,6 +3,7 @@ import fp from 'lodash/fp.js';
 import { formatAsNumbers } from '../util.js';
 
 const process = fp.flow(
+	formatAsNumbers,
 	// Drop >= 2020
 	fp.filter(x => x < 2020),
 	// Sort ascending
@@ -55,7 +56,7 @@ export const part2 = (input) => {
 
 const main = () => {
 	const input = fs.readFileSync('./input.txt').toString();
-	console.log('Part 1', part1(formatAsNumbers(input)));
-	console.log('Part 2', part2(formatAsNumbers(input)));
+	console.log('Part 1', part1(input));
+	console.log('Part 2', part2(input));
 };
 main();

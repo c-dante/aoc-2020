@@ -1,4 +1,3 @@
-import { formatAsNumbers } from '../util.js';
 import { part1, part2 } from './index.js';
 
 const input = `1721
@@ -10,10 +9,10 @@ const input = `1721
 
 console.log(
 	'Part 1',
-	part1(formatAsNumbers(input)) === 514579
+	part1(input) === 514579
 );
 
 console.log(
 	'Part 2',
-	part2(formatAsNumbers(input)) === 241861950
+	part2(input) === 241861950
 );
