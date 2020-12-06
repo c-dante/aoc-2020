@@ -1,9 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-
-const process = fp.flow(
-	fp.split('\n'),
-);
+import { emptyLineGroupedReduce } from '../util.js';
 
 const expected = {
 	'byr': x => x.length === 4 && (+x >= 1920 && +x <= 2002),
@@ -25,53 +22,53 @@ const expected = {
 };
 
 export const part1 = (input) => {
-	const processed = process(input);
+	const res = emptyLineGroupedReduce(
+		input,
 
-	const out = processed.reduce((acc, next) => {
+		(acc, next) => {
+			next.split(' ').forEach(y => {
+				const tok = y.split(':')[0];
+				acc.delete(tok);
+			});
+			return acc;
+		},
+		() => new Set(Object.keys(expected)),
 
-		if (next === '') {
-			if (acc.fields.size === 0) {
-				return { count: acc.count + 1, fields: new Set(Object.keys(expected)) };
+		(acc) => {
+			if (acc.size === 0) {
+				return 1;
 			}
-			return { count: acc.count, fields: new Set(Object.keys(expected)) };
+			return 0;
 		}
+	);
 
-		next.split(' ').forEach(y => {
-			const tok = y.split(':')[0];
-			acc.fields.delete(tok);
-		});
-
-		return acc;
-	}, { count: 0, fields: new Set(Object.keys(expected)) });
-
-
-	return out.count + (out.fields.size === 0 ? 1 : 0);
+	return fp.sum(res);
 };
 
 export const part2 = (input) => {
-	const processed = process(input);
+	const res = emptyLineGroupedReduce(
+		input,
 
-	const out = processed.reduce((acc, next) => {
+		(acc, next) => {
+			next.split(' ').forEach(y => {
+				const [tok, value] = y.split(':');
+				if (expected[tok] && expected[tok](value)) {
+					acc.delete(tok);
+				}
+			});
+			return acc;
+		},
+		() => new Set(Object.keys(expected)),
 
-		if (next === '') {
-			if (acc.fields.size === 0) {
-				return { count: acc.count + 1, fields: new Set(Object.keys(expected)) };
+		(acc) => {
+			if (acc.size === 0) {
+				return 1;
 			}
-			return { count: acc.count, fields: new Set(Object.keys(expected)) };
+			return 0;
 		}
+	);
 
-		next.split(' ').forEach(y => {
-			const [tok, value] = y.split(':');
-			if (expected[tok] && expected[tok](value)) {
-				acc.fields.delete(tok);
-			}
-		});
-
-		return acc;
-	}, { count: 0, fields: new Set(Object.keys(expected)) });
-
-
-	return out.count + (out.fields.size === 0 ? 1 : 0);
+	return fp.sum(res);
 };
 
 const main = () => {
