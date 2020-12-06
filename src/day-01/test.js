@@ -8,11 +8,11 @@ const input = `1721
 1456`;
 
 console.log(
-	'Part 1',
-	part1(input) === 514579
+	'Part 1 (T)',
+	part1(input), 514579
 );
 
 console.log(
-	'Part 2',
-	part2(input) === 241861950
+	'Part 2 (T)',
+	part2(input), 241861950
 );
