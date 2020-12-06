@@ -1,69 +1,42 @@
-import { POINT_CONVERSION_COMPRESSED } from 'constants';
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-
-const process = fp.flow(
-	fp.split('\n'),
-);
+import * as util from '../util.js';
 
 export const part1 = (input) => {
-	const processed = process(input);
+	const out = util.emptyLineGroupedReduce(
+		input,
 
-	const out = processed.reduce((acc, x) => {
-		// Produce group
-		if (x === '') {
-			acc.groups.push(Object.keys(acc.ans).length);
-			return { groups: acc.groups, ans: {} };
-		}
+		(acc, next) => {
+			next.split('').forEach(c => {
+				if (!acc[c]) acc[c] = 0;
+				acc[c]++;
+			})
+			return acc;
+		},
+		() => ({}),
 
-		x.split('').forEach(y => {
-			if (!acc.ans[y]) {
-				acc.ans[y] = 0;
-			}
-			acc.ans[y]++;
-		});
-
-		return acc;
-	}, { groups: [], ans: {} })
-
-	return fp.sum(out.groups) + Object.keys(out.ans).length;
+		acc => Object.keys(acc).length,
+	);
+	return fp.sum(out);
 };
 
 export const part2 = (input) => {
-	const processed = process(input);
+	const out = util.emptyLineGroupedReduce(
+		input,
 
-	const out = processed.reduce((acc, x) => {
-		if (x === '') {
-			const total = Object.values(acc.ans).reduce((x, set) => {
-				if (set === acc.total) {
-					return x + 1;
-				}
-				return x;
-			}, 0);
-			acc.groups.push(total);
+		(acc, next) => {
+			acc.total++;
+			next.split('').forEach(c => {
+				if (!acc.letters[c]) acc.letters[c] = 0;
+				acc.letters[c]++;
+			})
+			return acc;
+		},
+		() => ({ letters: {}, total: 0 }),
 
-			return { groups: acc.groups, ans: {}, total: 0 };
-		}
-
-		acc.total++;
-		x.split('').forEach(y => {
-			if (!acc.ans[y]) {
-				acc.ans[y] = 0;
-			}
-			acc.ans[y]++;
-		});
-
-		return acc;
-	}, { groups: [], ans: {}, total: 0 })
-
-	const total = Object.values(out.ans).reduce((x, set) => {
-		if (set === out.total) {
-			return x + 1;
-		}
-		return x;
-	}, 0);
-
-	return fp.sum(out.groups) + total;
+		acc => Object.values(acc.letters).filter(x => x === acc.total).length,
+	);
+	return fp.sum(out);
 };
 
 const main = () => {
