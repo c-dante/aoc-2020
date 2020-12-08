@@ -1,3 +1,7 @@
+import fp from 'lodash/fp.js';
+
+export const log = (x) => console.dir(x, { depth: null })
+
 export const formatAsNumbers = numbers => numbers.split('\n').map(Number);
 
 /**
@@ -31,3 +35,70 @@ export const emptyLineGroupedReduce = (
 		return acc;
 	}, { outputs: [], intermediate: newIntermediate() })
 	.outputs;
+
+
+
+// ----- graph ----- //
+export const toGraph = (nodes, edges) => {
+	const byId = fp.keyBy('id', nodes);
+	const children = fp.flow(
+		fp.groupBy(x => x[0]),
+		fp.mapValues(fp.flow(
+			fp.map(x => x[1]),
+			fp.uniq
+		)),
+	)(edges);
+	const parents = fp.flow(
+		fp.groupBy(x => x[1]),
+		fp.mapValues(fp.flow(
+			fp.map(x => x[0]),
+			fp.uniq
+		)),
+	)(edges);
+	return { nodes, byId, children, parents };
+};
+
+export const topo = (getDeps, id) => {
+	const visited = new Set();
+	const children = new Set();
+	const recurse = (node) => {
+		if (visited.has(node)) return;
+		visited.add(node);
+		children.add(node);
+		getDeps(node).forEach(recurse);
+	};
+	getDeps(id).forEach(recurse);
+	return [...children];
+}
+
+export const allChildren = (graph, id) => topo(
+	node => (graph.children[node] ?? []),
+	id
+);
+
+export const allParents = (graph, id) => topo(
+	node => (graph.parents[node] ?? []),
+	id
+);
+
+if (false) {
+	const graph = toGraph(
+		[
+			{ id: 'a' },
+			{ id: 'b' },
+			{ id: 'c' },
+			{ id: 'd' },
+		],
+		[
+			['a', 'b'],
+			['a', 'c'],
+			['b', 'c'],
+			['b', 'd'],
+		]
+	);
+	log(graph);
+	Object.keys(graph.byId).forEach(id => {
+		console.log(id, 'allChildren', allChildren(graph, id));
+		console.log(id, 'allParents', allParents(graph, id));
+	});
+}
