@@ -40,6 +40,7 @@ export const part2 = (input, toFind = 14360655) => {
 
 		acc.range.push(x);
 		acc.sum += x;
+
 		if (acc.sum === toFind) {
 			return acc;
 		}
@@ -50,6 +51,10 @@ export const part2 = (input, toFind = 14360655) => {
 
 		return acc;
 	}, { range: [], sum: 0 })
+
+	if (acc.sum !== toFind) {
+		return -1; // error
+	}
 
 	return fp.min(res.range) + fp.max(res.range);
 };
