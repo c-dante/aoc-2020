@@ -3,12 +3,19 @@ import fp from 'lodash/fp.js';
 import * as util from '../util.js';
 
 export const part1 = (input) => {
-	return undefined;
+	const res = input.split('\n').reduce((acc, x) => {
+
+	});
+	return res;
 };
 
 export const part2 = (input) => {
-	return undefined;
+	const res = input.split('\n').reduce((acc, x) => {
+
+	});
+	return res;
 };
+
 
 const main = () => {
 	const input = fs.readFileSync('./input.txt').toString();
