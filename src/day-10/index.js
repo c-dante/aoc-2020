@@ -38,39 +38,32 @@ const fact = (x) => {
 
 export const part2 = (input) => {
 	const res = input.split('\n').map(Number);
-	res.push(0);
 	res.push(fp.max(res) + 3);
 	res.sort((a, b) => a - b);
 
-	const deltas = res.slice(1).map((x, i) => x - res[i]);
-	const out = deltas.join('')
-		.split('3')
-		.filter(x => x.length > 0)
-		.map(x => fact(x.length))
-		.reduce((acc, x) => acc * x, 1);
+	const cache = {
+		0: 1,
+	};
+	res.forEach(x => {
+		let local = 0;
+		if (cache[x - 1]) {
+			local += cache[x - 1];
+		}
+		if (cache[x - 2]) {
+			local += cache[x - 2];
+		}
+		if (cache[x - 3]) {
+			local += cache[x - 3];
+		}
+		cache[x] = local;
+	});
 
-// 0 1 2 3 4 7
-//   1 1 1 3 YES
-//     2 1 3 YES
-//   1   2 3 YES
-//   1 1   4 NO
-//       3 3 YES
-
-// 0 1 2 3 4 7
-//   1 1 1 1 3 YES
-//     2 1 1 3 YES
-//       3 1 3 YES
-
-
-// 1 1 3
-//   2 3
-
-	return out;
+	return cache[fp.last(res)];
 };
 
 const main = () => {
 	const input = fs.readFileSync('./input.txt').toString();
 	console.log('Part 1', part1(input));
-	// console.log('Part 2', part2(input));
+	console.log('Part 2', part2(input));
 };
 main();
