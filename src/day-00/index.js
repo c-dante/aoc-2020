@@ -5,14 +5,14 @@ import * as util from '../util.js';
 export const part1 = (input) => {
 	const res = input.split('\n').reduce((acc, x) => {
 
-	});
+	}, {});
 	return res;
 };
 
 export const part2 = (input) => {
 	const res = input.split('\n').reduce((acc, x) => {
 
-	});
+	}, {});
 	return res;
 };
 
