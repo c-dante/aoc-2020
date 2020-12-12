@@ -37,8 +37,9 @@ export const emptyLineGroupedReduce = (
 	.outputs;
 
 
-
+///////////////////////
 // ----- graph ----- //
+///////////////////////
 export const toGraph = (nodes, edges) => {
 	const byId = fp.keyBy('id', nodes);
 	const children = fp.flow(
@@ -102,3 +103,33 @@ if (false) {
 		console.log(id, 'allParents', allParents(graph, id));
 	});
 }
+
+///////////////////////
+// ----- grid ------ //
+///////////////////////
+export const cardinal = [
+	[0, 1],
+	[0, -1],
+	[1, 0],
+	[-1, 0],
+];
+export const diagonal = [
+	[1, 1],
+	[1, -1],
+	[-1, 1],
+	[-1, -1],
+];
+export const rose = cardinal.concat(diagonal);
+
+export const castRay = (grid, cb, y, x, dy, dx) => {
+	let r = y + dy;
+	let c = x + dx;
+	while (
+		r < grid.length &&
+		c < grid[r].length &&
+		cb(grid[r][c], grid, r, c) !== false
+	) {
+		r += dy;
+		c += dx;
+	}
+};
