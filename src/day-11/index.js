@@ -71,20 +71,6 @@ export const part1 = (input) => {
 	);
 };
 
-const getVision = (grid, x, y, dx, dy) => {
-	// Compute vision
-	let r = y + dy;
-	let c = x + dx;
-	while (grid[r]?.[c] === FLOOR) {
-		r += dy;
-		c += dx;
-	}
-	if (grid[r]?.[c] !== undefined) {
-		return [r, c];
-	}
-	return undefined;
-}
-
 const apply2 = (grid, vision) => {
 	let change = false;
 	const newGrid = grid.map(
@@ -126,18 +112,8 @@ export const part2 = (input) => {
 	const vision = {};
 	res.forEach((row, y) => row.forEach((cell, x) => {
 		if (cell === SEAT || cell === OCCUPIED) {
-			[
-				[0, 1],
-				[0, -1],
-				[1, 0],
-				[-1, 0],
-				//
-				[1, 1],
-				[1, -1],
-				[-1, 1],
-				[-1, -1],
-			].forEach(([dx, dy]) => {
-				const ray = getVision(res, x, y, dx, dy);
+			util.rose.forEach(([dx, dy]) => {
+				const ray = util.castRay(res, (x) => x === FLOOR, y, x, dy, dx);
 				if (ray !== undefined) {
 					if (!vision[`${y}.${x}`]) {
 						vision[`${y}.${x}`] = [];
@@ -147,9 +123,6 @@ export const part2 = (input) => {
 			});
 		}
 	}));
-
-	// console.log(getVision(res, 0, 1, 1, 1));
-	// console.log(vision[`1.0`]);
 
 	// Run iterations
 	let grid = res;
@@ -170,7 +143,11 @@ export const part2 = (input) => {
 
 const main = () => {
 	const input = fs.readFileSync('./input.txt').toString();
+	// console.time('part 1');
 	console.log('Part 1', part1(input));
+	// console.timeEnd('part 1');
+	// console.time('part 2');
 	console.log('Part 2', part2(input));
+	// console.timeEnd('part 2');
 };
 main();

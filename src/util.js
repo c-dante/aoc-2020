@@ -126,10 +126,16 @@ export const castRay = (grid, cb, y, x, dy, dx) => {
 	let c = x + dx;
 	while (
 		r < grid.length &&
-		c < grid[r].length &&
+		c < grid[r]?.length &&
 		cb(grid[r][c], grid, r, c) !== false
 	) {
 		r += dy;
 		c += dx;
 	}
+
+	if (r < grid.length && c < grid[r]?.length) {
+		return [r, c];
+	}
+
+	return undefined;
 };
