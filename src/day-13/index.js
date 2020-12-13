@@ -64,6 +64,8 @@ export const part2 = (input) => {
 	// a[3] * 31 - a[0] * 7 = 6
 	// a[3] * 19 - a[0] * 7 = 7
 
+	// Apparently https://en.wikipedia.org/wiki/Chinese_remainder_theorem#Computation ?
+
 	return res;
 };
 
