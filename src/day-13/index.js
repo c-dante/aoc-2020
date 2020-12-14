@@ -35,28 +35,12 @@ export const part2 = (input) => {
 		return acc;
 	}, []);
 
-	const alpha = 'abcdefghijklmnopqrstuvwxyz'.split('');
-	console.log(
-		busIds.map((x,i) => `${x.id}*${alpha[i]} = n + ${x.i}`)
-		.join(', ')
-	);
-
-	const max = fp.maxBy(x => x.id, busIds);
-	const maxIdx = busIds.indexOf(max);
-	const remain = busIds.filter(x => x !== max);
-	console.log(max, remain);
-	let i = 1;
-	while (true) {
-		const zero = i * max.id - max.i;
-		if (remain.every(y => {
-			const f = (zero + y.i) / y.id;
-			return f === Math.floor(f);
-		})) {
-			break;
-		}
-		i++;
-	}
-	return i * max.id - max.i;
+	// And just throw it into wolfram!
+	// const alpha = 'abcdefghijklmnopqrstuvwxyz'.split('');
+	// console.log(
+	// 	busIds.map((x,i) => `${x.id}*${alpha[i]} = n + ${x.i}`)
+	// 	.join(', ')
+	// );
 
 	// a[0] * 7 - n = 0
 	// a[1] * 13 - a[0] * 7 = 1
@@ -65,6 +49,10 @@ export const part2 = (input) => {
 	// a[3] * 19 - a[0] * 7 = 7
 
 	// Apparently https://en.wikipedia.org/wiki/Chinese_remainder_theorem#Computation ?
+
+	// How about a modded lock? each multiplier that will force two number to move together
+	// like, 7 * x = n and 13 * y = n + 1
+	// means there's some i that can pull out from 7 * i * x = n * i, 13 * i * y = i * (n + 1)
 
 	return res;
 };

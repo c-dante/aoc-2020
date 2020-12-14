@@ -7,6 +7,8 @@
   "license": "MIT",
   "type": "module",
   "dependencies": {
+    "bitset": "5.1.1",
+    "js-combinatorics": "1.4.5",
     "lodash": "^4.17.20"
   }
 }
