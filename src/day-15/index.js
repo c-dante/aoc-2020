@@ -5,40 +5,36 @@ import * as util from '../util.js';
 export const part1 = (input, nthSpoken = 2020) => {
 	const nums = input.split(',').map(Number);
 	const spoken = new Map();
-	let lastSpoken = 0;
+	let lastSpoken = -1;
+
+	const speak = (n, i) => {
+		lastSpoken = n;
+
+		const result = spoken.get(n);
+		if (!result) {
+			spoken.set(n, { spoken: 1, a: i, b: -1 });
+		} else {
+			result.b = result.a;
+			result.a = i;
+			result.spoken++;
+		}
+	}
 
 	for (let i = 0; i < nthSpoken; i++) {
 		if (i < nums.length) {
-			spoken.set(nums[i], { spoken: 1, turn: [i] });
+			spoken.set(nums[i], { spoken: 1, a: i, b: -1 })
 			lastSpoken = nums[i];
-			// console.log(nums[i]);
 			continue;
 		}
 
 		const last = spoken.get(lastSpoken);
 		if (last.spoken === 1) {
-			const now = spoken.get(0) ?? { spoken: 0, turn: [] };
-			now.spoken++;
-			now.turn.unshift(i);
-			if (now.turn.length > 2) {
-				now.turn.pop();
-			}
-			lastSpoken = 0;
-			spoken.set(0, now);
-			// console.log(lastSpoken);
+			speak(0, i);
 		} else {
-			const speak = last.turn[0] - last.turn[1];
-			const now = spoken.get(speak) ?? { spoken: 0, turn: [] };
-			now.spoken++;
-			now.turn.unshift(i);
-			if (now.turn.length > 2) {
-				now.turn.pop();
-			}
-			spoken.set(speak, now);
-			lastSpoken = speak;
-			// console.log(speak);
+			speak(last.a - last.b, i);
 		}
 	}
+
 	return lastSpoken;
 };
 
