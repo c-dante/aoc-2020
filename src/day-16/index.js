@@ -43,79 +43,97 @@ export const part1 = (input) => {
 	return errorRate;
 };
 
-const inRange = ([low, high], x) => low <= x && high >= x
 export const part2 = (input) => {
-	const res = input.split('\n').reduce((acc, x) => {
-		if (x === '') {
-			acc.out.push(acc.temp)
-			acc.temp = []
-		} else {
-			acc.temp.push(x);
-		}
-		return acc;
-	}, {
-		out: [],
-		temp: [],
-	});
-	const [fields, mine] = res.out;
-	const nearby = res.temp;
-	mine.shift();
-	nearby.shift();
+	const [
+		rawFields,
+		rawMine,
+		rawNearby,
+	] = util.emptyLineGroupedReduce(input);
 
-	const possibleFields = fields.map(x => {
-		const [_, field, a, b] = /([\w\s]+): ([\d\-]+) or ([\d\-]+)/.exec(x);
+	// Compute fields
+	const toRange = fp.flow(
+		fp.split('-'),
+		fp.map(Number),
+		fp.sortBy(fp.identity)
+	);
+
+	const fields = rawFields.map(str => {
+		const [_, field, a, b] = /([\w\s]+): ([\d\-]+) or ([\d\-]+)/.exec(str);
+		const ranges = [toRange(a), toRange(b)];
 		return {
 			field,
-			a: fp.sortBy(x=> x, a.split('-').map(Number)),
-			b: fp.sortBy(x=> x, b.split('-').map(Number)),
-			columns: new Set(fields.map((_, i) => i)),
+			ranges,
+			inRange: x => ranges.some(([min, max]) => min <= x && x <= max),
+			columns: new Set(fp.range(0, rawFields.length)),
+			col: undefined, // placeholder for locked in column
 		};
 	});
 
-	const asd = mine[0].split(',').map(Number);
-	nearby
-		.map(x => x.split(',').map(Number))
-		.concat([asd])
-		.forEach(ticket => {
-			if (ticket.every(
-				n => possibleFields.some(field => inRange(field.a, n) || inRange(field.b, n))
-			)) {
-				ticket.forEach((n, col) => {
-					possibleFields.forEach(field => {
-						if (!inRange(field.a, n) && !inRange(field.b, n)) {
-							field.columns.delete(col);
+	const mine = rawMine.pop().split(',').map(Number);
 
-							if (field.columns.size === 1) {
-								const x = [...field.columns];
-								field.col = x[0];
-								possibleFields.forEach(x => x.columns.delete(field.col));
-							}
+	const toSolve = new Set(fields);
+	const deduceExclude = (field, column) => {
+		field.columns.delete(column);
+		if (field.columns.size === 1) {
+			const solvedColumn = [...field.columns][0];
+			field.col = solvedColumn;
+			toSolve.delete(field);
+			toSolve.forEach(otherField => otherField.columns.delete(solvedColumn));
+		}
+	}
+
+	// Solve for field columns
+	rawNearby
+		.slice(1)
+		.map(x => x.split(',').map(Number))
+		.concat([mine])
+		.forEach(ticket => {
+			if (toSolve.length === 0) {
+				return false;
+			}
+
+			// For each ticket, assert some field is valid for it
+			// Collect all non-solved invalid fields
+			const candidates = [];
+			let validFields = 0;
+			for (let column = 0; column < ticket.length; column++) {
+				let hasValid = false;
+				fields.forEach(field => {
+					if (!field.inRange(ticket[column])) {
+						if (field.col === undefined) {
+							candidates.push({ field, column });
 						}
-					});
+					} else {
+						hasValid = true;
+					}
 				});
+				if (hasValid) {
+					validFields++;
+				}
+			}
+
+			if (validFields === ticket.length) {
+				candidates.forEach(({ field, column }) => deduceExclude(field, column));
 			}
 		});
 
-		let f = possibleFields.slice();
-		while (f.length) {
-			f = f.filter(x => {
-				if (x.col !== undefined || x.columns.size === 0) {
-					return false;
-				}
-				if (x.columns.size === 1) {
-					x.col = [...x.columns][0];
-					possibleFields.forEach(n => n.columns.delete(x.col));
-				}
-				return true;
-			});
-		}
+	// Deduce remaining fields
+	while (toSolve.size > 0) {
+		toSolve.forEach(field => {
+			if (field.columns.size === 1) {
+				toSolve.delete(field);
+				const solvedColumn = [...field.columns][0];
+				field.col = solvedColumn;
+				toSolve.forEach(otherField => otherField.columns.delete(solvedColumn));
+			}
+		});
+	}
 
 	// find my departure
 	// multiply them together
-
-	return possibleFields.filter(x => x.field.startsWith('departure'))
-		.map(x => asd[x.col])
-		.reduce((a, b) => a * b);
+	return fields.filter(x => x.field.startsWith('departure'))
+		.map(x => mine[x.col])
+		.reduce((a, b) => a * b, 1);
 };
 
 const main = () => {
