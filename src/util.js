@@ -17,16 +17,17 @@ export const formatAsNumbers = numbers => numbers.split('\n').map(Number);
  */
 export const emptyLineGroupedReduce = (
 	input,
-	reducer,
-	newIntermediate,
+	reducer = (acc, x) => { acc.push(x); return acc; },
+	newIntermediate = () => [],
 	producer = x => x,
 ) => input
 	.split('\n')
 	.concat('')
 	.reduce((acc, row) => {
 		if (row === '') {
+			acc.outputs.push(producer(acc.intermediate));
 			return {
-				outputs: acc.outputs.concat(producer(acc.intermediate)),
+				outputs: acc.outputs,
 				intermediate: newIntermediate(),
 			};
 		}
@@ -35,7 +36,6 @@ export const emptyLineGroupedReduce = (
 		return acc;
 	}, { outputs: [], intermediate: newIntermediate() })
 	.outputs;
-
 
 ///////////////////////
 // ----- graph ----- //
