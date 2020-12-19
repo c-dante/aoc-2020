@@ -19,57 +19,75 @@ export const part1 = (input, override = false) => {
 
 	if (override) {
 		if (byId[8]) {
-			byId[8] = parseRule('8: 42 8 | 42');
+			byId[8] = parseRule('8: 42 | 42 8');
 		}
 
 		if (byId[11]) {
-			byId[11] = parseRule('11: 42 11 31 | 42 31');
+			byId[11] = parseRule('11: 42 31 | 42 11 31');
 		}
 	}
 
-	const wrappedExec = (x, rule) => {
+	const wrappedExec = (inputStr, rule) => {
+		// (str, ruleId[])[]
+		const queue = [];
 		const explored = new Set();
-		const branches = [[x, rule]];
+		if (rule.or) {
+			rule.or.forEach(ruleIds => queue.push([inputStr, ruleIds]));
+		} else {
+			queue.push([inputStr, [rule.id]]);
+		}
 
-		const exec = (x, rule) => {
-			if (x === '') return [false, x];
-			if (rule.literal) {
-				if (x[0] === rule.literal) {
-					return [true, x.slice(1)];
-				}
+		const exec = (str, ruleIds) => {
+			const res = ruleIds.reduce(
+				(acc, id, idx) => {
+					if (!acc[0]) {
+						return acc;
+					}
 
-				return [false, x];
-			}
-
-			const candidate = [];
-			for (const ruleIds of rule.or) {
-				const res = ruleIds.reduce(
-					(acc, id) => {
-						if (!acc[0]) {
-							return [false, x];
+					const rule = byId[id];
+					if (rule.literal) {
+						if (acc[1][0] === rule.literal) {
+							return [true, acc[1].slice(1)];
 						}
 
-						return exec(acc[1], byId[id]);
-					}, [true, x]);
+						return [false, str];
+					}
 
-				if (res[0]) {
-					candidate.push(res);
-				}
+					// Assume or
+					const candidate = [];
+					for (const subRuleIds of rule.or) {
+						const orRes = exec(acc[1], subRuleIds);
+						if (orRes[0]) {
+							candidate.push(orRes)
+						}
+					}
+
+					// No branch works, fail
+					if (candidate.length === 0) {
+						return [false, str];
+					}
+
+					// Otherwise, populate queue with other branches
+					while (candidate.length > 1) {
+						const [_, substr] = candidate.pop();
+						// Continue from this substr + the rest of the current rule if this one doesn't pan out
+						queue.push([substr, ruleIds.slice(idx)]);
+					}
+
+					// And explore the left here
+					return candidate[0];
+				}, [true, str]);
+
+			if (res[0]) {
+				return res;
 			}
 
-			if (candidate.length > 0) {
-				if (candidate.length > 1) {
-					console.log('??? where go though?', rule, candidate[1]);
-				}
-				return candidate[0];
-			}
-
-			return [false, x];
+			return [false, str];
 		};
 
-		while (branches.length) {
-			const toRun = branches.pop();
-			const toRunId = `${toRun[0]}:${toRun[1].id}`;
+		while (queue.length) {
+			const toRun = queue.pop();
+			const toRunId = `${toRun[0]}:${toRun[1].join('.')}`;
 			if (explored.has(toRunId)) {
 				continue;
 			}
@@ -79,12 +97,12 @@ export const part1 = (input, override = false) => {
 				return res;
 			}
 		}
-		return [false, x];
+
+		return [false, inputStr];
 	}
 
 	return messages.filter(x => {
 		const [res, remainder] = wrappedExec(x, byId[0]);
-		console.log({ res, remainder });
 		return res && remainder.length === 0;
 	}).length;
 };

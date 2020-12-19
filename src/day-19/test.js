@@ -11,7 +11,8 @@ ababbb
 bababa
 abbbab
 aaabbb
-aaaabbb`;
+aaaabbb
+`;
 
 console.log(
 	'Part 1 (T)',
@@ -52,12 +53,27 @@ const partTwoInput = `42: 9 14 | 10 1
 7: 14 5 | 1 21
 24: 14 1
 
-babbbbaabbbbbabbbbbbaabaaabaaa`;
-// console.log(
-// 	'Part 2 (T)',
-// 	part1(partTwoInput),
-// 	3
-// );
+abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa
+bbabbbbaabaabba
+babbbbaabbbbbabbbbbbaabaaabaaa
+aaabbbbbbaaaabaababaabababbabaaabbababababaaa
+bbbbbbbaaaabbbbaaabbabaaa
+bbbababbbbaaaaaaaabbababaaababaabab
+ababaaaaaabaaab
+ababaaaaabbbaba
+baabbaaaabbaaaababbaababb
+abbbbabbbbaaaababbbbbbaaaababb
+aaaaabbaabaaaaababaa
+aaaabbaaaabbaaa
+aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
+babaaabbbaaabaababbaabababaaab
+aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba`;
+
+console.log(
+	'Part 2 (T)',
+	part1(partTwoInput),
+	3
+);
 console.log(
 	'Part 2 (T)',
 	part1(partTwoInput, true),
