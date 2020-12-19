@@ -67,7 +67,8 @@ aaaaabbaabaaaaababaa
 aaaabbaaaabbaaa
 aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
 babaaabbbaaabaababbaabababaaab
-aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba`;
+aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba
+`;
 
 console.log(
 	'Part 2 (T)',

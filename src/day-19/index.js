@@ -37,7 +37,11 @@ export const part1 = (input, override = false) => {
 			queue.push([inputStr, [rule.id]]);
 		}
 
-		const exec = (str, ruleIds) => {
+		const exec = (str, ruleIds, remainingRules = []) => {
+			if (str === '' && ruleIds.length === 0) {
+				return [true, ''];
+			}
+
 			const res = ruleIds.reduce(
 				(acc, id, idx) => {
 					if (!acc[0]) {
@@ -56,9 +60,9 @@ export const part1 = (input, override = false) => {
 					// Assume or
 					const candidate = [];
 					for (const subRuleIds of rule.or) {
-						const orRes = exec(acc[1], subRuleIds);
+						const orRes = exec(acc[1], subRuleIds, remainingRules.concat(ruleIds.slice(idx + 1)));
 						if (orRes[0]) {
-							candidate.push(orRes)
+							candidate.push(orRes);
 						}
 					}
 
@@ -71,7 +75,7 @@ export const part1 = (input, override = false) => {
 					while (candidate.length > 1) {
 						const [_, substr] = candidate.pop();
 						// Continue from this substr + the rest of the current rule if this one doesn't pan out
-						queue.push([substr, ruleIds.slice(idx)]);
+						queue.push([substr, remainingRules.concat(ruleIds.slice(idx + 1))]);
 					}
 
 					// And explore the left here
@@ -119,4 +123,4 @@ const main = () => {
 	console.log('Part 2', part2(input));
 	// console.timeEnd('part 2');
 };
-// main();
+main();
