@@ -18,14 +18,14 @@ const getBorders = tile => {
 	return { top, bottom, left, right };
 };
 
-const flipX = tile => ({
+const flipY = tile => ({
 	id: tile.id,
 	top: fp.reverse(tile.top).join(''),
 	bottom: fp.reverse(tile.bottom).join(''),
 	left: tile.right,
 	right: tile.left,
 });
-const flipY = tile => ({
+const flipX = tile => ({
 	id: tile.id,
 	top: tile.bottom,
 	bottom: tile.top,
@@ -40,6 +40,8 @@ const rotate_cw = tile => ({
 	right: tile.top,
 });
 
+
+const applyXform = (xforms, tile) => xforms.reduce((acc, xform) => xform(acc), tile);
 const check = [
 	[x => x],
 	[rotate_cw],
@@ -57,9 +59,35 @@ const check = [
 	[flipX, flipY, rotate_cw],
 	[flipX, flipY, rotate_cw, rotate_cw],
 	[flipX, flipY, rotate_cw, rotate_cw, rotate_cw],
-];
+].filter((x, i, collection) => {
+	// Dedupe transformations
+	const tile = getBorders(['123', '456', '789']);
+	const base = applyXform(x, tile);
+	for (const j in collection) {
+		if (i > +j) {
+			const other = applyXform(collection[j], tile);
+			if (fp.isEqual(base, other)) {
+				return false;
+			}
+		}
+	}
+	return true;
+});
 
-const applyXform = (xforms, tile) => xforms.reduce((acc, xform) => xform(acc), tile);
+const printTile = tile => {
+	const length = tile.top.length;
+	return [
+		tile.top,
+		...tile.left
+			.split('')
+			.slice(1, -1)
+			.map((x, i) => {
+				const out = '-'.repeat(length - 2);
+				return `${tile.left[i + 1]}${out}${tile.right[i + 1]}`;
+			}),
+		tile.bottom
+	].join('\n');
+}
 
 const checkFit = (grid, x, y, tile) => {
 	const topTile = grid[x]?.[y-1];
@@ -225,4 +253,4 @@ const main = () => {
 	console.log('Part 2', part2(input));
 	console.timeEnd('part 2');
 };
-main();
+// main();
