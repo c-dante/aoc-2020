@@ -132,15 +132,15 @@ const getCandidates = (grid, x, y, pool) => pool.reduce((acc, tile) => {
 const isValid = (arrangement) => {
 	return arrangement.every(
 		x => x.every(
-			y => y !== undefined
+			cell => cell !== undefined
 		)
 	);
 }
 
 const getCoords = length => {
 	const coords = [];
-	for (let x = 0; x < length; x++) {
-		for (let y = 0; y < length; y++) {
+	for (let y = 0; y < length; y++) {
+		for (let x = 0; x < length; x++) {
 			if (x === 0 && y === 0) continue;
 			coords.push([x, y]);
 		}
@@ -185,25 +185,30 @@ export const part1 = (input) => {
 	// Start with top left (?)
 	const topLeftPool = tiles.slice();
 
-	const solveGrid = (grid, coords, idPool) => {
+	const solveGrid = (grid, coords, idBag) => {
+		if (coords.length === 0) return grid;
 
-		while (coords.length) {
-			const [x, y] = coords.shift();
-			const candidates = getCandidates(grid, x, y, getPool(idPool));
-			if (candidates.length === 0) {
-				return undefined;
-			}
+		const [x, y] = coords.shift();
 
-			while (candidates.length > 0) {
-				// Traverse candidate
-				const candidate = candidates.pop();
-				const copy = util.copyGrid(grid);
-				copy[x][y] = candidate;
-				const newPool = new Set([...idPool]);
-				newPool.delete(candidate.id);
-				const res = solveGrid(copy, coords.slice(), newPool);
-				if (res) {
-					return res;
+		// Try each tile
+		const snapIds = [...idBag];
+		for (const candidateId of snapIds) {
+			const candidate = byId[candidateId];
+			for (const xform of check) {
+				const xformCandidate = applyXform(xform, candidate);
+				// This tile fits in this orientation, so try it
+				if (checkFit(grid, x, y, xformCandidate)) {
+					grid[x][y] = xformCandidate;
+					idBag.delete(candidateId)
+					const solved = solveGrid(grid, coords, idBag);
+					// If that solved the grid, we're done
+					if (solved) {
+						return solved;
+					}
+
+					// Otherwise, backtrack
+					grid[x][y] = undefined;
+					idBag.add(candidateId);
 				}
 			}
 		}
@@ -214,14 +219,14 @@ export const part1 = (input) => {
 	console.log(getCoords(length));
 	while (topLeftPool.length) {
 		const topLeft = topLeftPool.pop();
-		const idPool = new Set(tiles.map(x => x.id));
-		idPool.delete(topLeft.id);
-
+		const idBag = new Set(tiles.map(x => x.id));
+		idBag.delete(topLeft.id);
 
 		for (const xform of [x => x, flipX, flipY]) {
 			const grid = util.get2dGrid(length);
 			grid[0][0] = xform(topLeft);
-			const res = solveGrid(grid, getCoords(length), idPool);
+
+			const res = solveGrid(grid, getCoords(length), idBag);
 			if (res && isValid(res)) {
 				return getCorners(res, length)
 					.map(x => x.id)
@@ -253,4 +258,4 @@ const main = () => {
 	console.log('Part 2', part2(input));
 	console.timeEnd('part 2');
 };
-// main();
+main();
