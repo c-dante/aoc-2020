@@ -1,4 +1,4 @@
-import fs, { Dir } from 'fs';
+import fs from 'fs';
 import fp from 'lodash/fp.js';
 import * as util from '../util.js';
 
@@ -43,10 +43,11 @@ const rotate_cw = tile => ({
 	xform: tile.xform.concat('rotate_cw'),
 });
 
-const flipYGrid = arr => arr.map()
-const flipXGrid = arr => arr.map()
-const rotateCwGrid = arr => arr.map()
-
+const flipYGrid = arr => arr.map(fp.reverse);
+const flipXGrid = fp.reverse;
+const rotateCwGrid = arr => arr.map(
+	(row, r) => row.map((_, c) => arr[arr.length - c - 1][r])
+);
 
 const applyXform = (xforms, tile) => xforms.reduce((acc, xform) => xform(acc), tile);
 const check = [
@@ -101,45 +102,34 @@ const printTile = tile => {
 	].join('\n');
 }
 
+const grid2str = fp.flow(
+	fp.map(fp.join('')),
+	fp.join('\n')
+);
+
 const checkFit = (grid, x, y, tile) => {
-	const topTile = grid[x]?.[y-1];
+	const topTile = grid[y - 1]?.[x];
 	if (topTile && topTile.bottom !== tile.top) {
 		return false;
 	}
 
-	const rightTile = grid[x + 1]?.[y];
+	const rightTile = grid[y]?.[x + 1];
 	if (rightTile && rightTile.left !== tile.right) {
 		return false;
 	}
 
-	const bottomTile = grid[x]?.[y + 1];
+	const bottomTile = grid[y + 1]?.[x];
 	if (bottomTile && bottomTile.top !== tile.bottom) {
 		return false;
 	}
 
-	const leftTile = grid[x - 1]?.[y];
+	const leftTile = grid[y]?.[x - 1];
 	if (leftTile && leftTile.right !== tile.left) {
 		return false;
 	}
 
 	return true;
 }
-
-const getCandidates = (grid, x, y, pool) => pool.reduce((acc, tile) => {
-	check.forEach(xforms => {
-		const candidate = applyXform(xforms, tile);
-		if (checkFit(grid, x, y, candidate)) {
-			acc.push({ ...candidate, id: tile.id });
-		}
-	})
-	return acc;
-}, []);
-
-// R1, R2 = reverse
-// R3, R4 = "normal"
-
-// Under rotation:
-// 90 =>
 
 const isValid = (arrangement) => {
 	return arrangement.every(
@@ -189,7 +179,7 @@ const buildGrid = (tiles) => {
 				const xformCandidate = applyXform(xform, candidate);
 				// This tile fits in this orientation, so try it
 				if (checkFit(grid, x, y, xformCandidate)) {
-					grid[x][y] = xformCandidate;
+					grid[y][x] = xformCandidate;
 					idBag.delete(candidateId)
 					const solved = solveGrid(grid, coords, idBag);
 					// If that solved the grid, we're done
@@ -198,7 +188,7 @@ const buildGrid = (tiles) => {
 					}
 
 					// Otherwise, backtrack
-					grid[x][y] = undefined;
+					grid[y][x] = undefined;
 					idBag.add(candidateId);
 				}
 			}
@@ -250,6 +240,26 @@ export const part1 = (input) => {
 		.reduce((a, b) => a * b, 1);
 };
 
+
+const dragonCoords = (() => {
+	const str = `                  #
+#    ##    ##    ###
+ #  #  #  #  #  #   `
+
+	return str.split('\n').reduce((acc, row, y) => {
+		row.split('').forEach((cell, x) => {
+			if (cell === '#') {
+				acc.push([x, y]);
+			}
+		})
+		return acc;
+	}, []);
+})();
+
+const isDragon = (grid, x, y) => dragonCoords.every(
+	([dx, dy]) => grid[y + dy]?.[x + dx] === '#'
+);
+
 export const part2 = (input) => {
 	const rx = /Tile (\d+):/;
 	const tiles = util.emptyLineGroupedReduce(input).map(
@@ -270,9 +280,10 @@ export const part2 = (input) => {
 		return 0;
 	}
 
+
 	// Now stitch the image
-	const fullApply = grid.map(row => row.map(cell => {
-		return cell.xform.reduce((inter, xform) => {
+	const fullApply = grid.map(tileRow => tileRow.map(tile => {
+		return tile.xform.reduce((inter, xform) => {
 			if (xform === 'flipX') {
 				return flipXGrid(inter);
 			}
@@ -283,22 +294,76 @@ export const part2 = (input) => {
 				return rotateCwGrid(inter);
 			}
 			return inter;
-		}, byId[cell.id].base.map(x => x.split('')));
+		}, byId[tile.id].base.map(x => x.split('')));
 	}));
 
-	const flattened = fullApply.reduce((acc, row) => {
-		const flat = [];
-		row.forEach((tile) => {
-			tile.forEach((tileRow, i) => {
-				if (flat.length <= i) {
-					flat.push([]);
+	const flattened = [];
+	fullApply.forEach((tileRow) => {
+		const thisApply = [];
+		tileRow.forEach(tile => {
+			// Remove the borders from each tile
+			tile.pop();
+			tile.shift();
+			tile.forEach((row, i) => {
+				if (!thisApply[i]) {
+					thisApply.push([]);
 				}
-				flat[i].push(...tileRow);
-			})
+				thisApply[i].push(...row.slice(1, -1));
+			});
 		});
-		// console.log(flat);
-		return acc;
-	}, []);
+		flattened.push(...thisApply);
+	});
+
+	// Verify we flatten right
+	// Find first orientation with any dragon
+	const checkAsGrid = check.map(xforms => xforms.map(func => {
+		if (func.name === 'rotate_cw') {
+			return rotateCwGrid;
+		}
+		if (func.name === 'flipX') {
+			return flipXGrid;
+		}
+		if (func.name === 'flipY') {
+			return flipYGrid;
+		}
+		return x => x;
+	}));
+
+	let orientation = undefined;
+	for (const toCheck of checkAsGrid) {
+		orientation = applyXform(toCheck, flattened);
+		(() => {
+			for (let x = 0; x < orientation[0].length; x++) {
+				for (let y = 0; y < orientation.length; y++) {
+					if (isDragon(orientation, x, y)) {
+						return;
+					}
+				}
+			}
+			orientation = undefined;
+		})();
+
+		if (orientation) break;
+	}
+
+	const allCoords = new Set();
+	for (let x = 0; x < orientation[0].length; x++) {
+		for (let y = 0; y < orientation.length; y++) {
+			if (orientation[y][x] === '#') {
+				allCoords.add([x,y].join(','));
+			}
+		}
+	}
+	for (let x = 0; x < orientation[0].length; x++) {
+		for (let y = 0; y < orientation.length; y++) {
+			if (isDragon(orientation, x, y)) {
+				dragonCoords.forEach(([dx, dy]) => {
+					allCoords.delete([x + dx, y + dy].join(','))
+				});
+			}
+		}
+	}
+	return allCoords.size;
 };
 
 
@@ -311,4 +376,4 @@ const main = () => {
 	console.log('Part 2', part2(input));
 	console.timeEnd('part 2');
 };
-// main();
+main();
