@@ -139,3 +139,9 @@ export const castRay = (grid, cb, y, x, dy, dx) => {
 
 	return undefined;
 };
+
+// ------
+export const get2dGrid = (length) => Array.from({ length })
+	.map(() => Array.from({ length }));
+
+export const copyGrid = grid => grid.slice().map(x => x.slice());
