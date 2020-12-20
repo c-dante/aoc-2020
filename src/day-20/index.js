@@ -43,6 +43,10 @@ const rotate_cw = tile => ({
 	xform: tile.xform.concat('rotate_cw'),
 });
 
+const flipYGrid = arr => arr.map()
+const flipXGrid = arr => arr.map()
+const rotateCwGrid = arr => arr.map()
+
 
 const applyXform = (xforms, tile) => xforms.reduce((acc, xform) => xform(acc), tile);
 const check = [
@@ -247,10 +251,54 @@ export const part1 = (input) => {
 };
 
 export const part2 = (input) => {
-	const res = input.split('\n').reduce((acc, x) => {
+	const rx = /Tile (\d+):/;
+	const tiles = util.emptyLineGroupedReduce(input).map(
+		tile => {
+			const id = rx.exec(tile.shift())[1]
+			return ({
+				id: +id,
+				base: tile,
+				...getBorders(tile),
+			});
+		}
+	);
 
-	}, {});
-	return res;
+	const byId = fp.keyBy('id', tiles);
+
+	const grid = buildGrid(tiles);
+	if (!grid) {
+		return 0;
+	}
+
+	// Now stitch the image
+	const fullApply = grid.map(row => row.map(cell => {
+		return cell.xform.reduce((inter, xform) => {
+			if (xform === 'flipX') {
+				return flipXGrid(inter);
+			}
+			if (xform === 'flipY') {
+				return flipYGrid(inter);
+			}
+			if (xform === 'rotate_cw') {
+				return rotateCwGrid(inter);
+			}
+			return inter;
+		}, byId[cell.id].base.map(x => x.split('')));
+	}));
+
+	const flattened = fullApply.reduce((acc, row) => {
+		const flat = [];
+		row.forEach((tile) => {
+			tile.forEach((tileRow, i) => {
+				if (flat.length <= i) {
+					flat.push([]);
+				}
+				flat[i].push(...tileRow);
+			})
+		});
+		// console.log(flat);
+		return acc;
+	}, []);
 };
 
 
@@ -263,4 +311,4 @@ const main = () => {
 	console.log('Part 2', part2(input));
 	console.timeEnd('part 2');
 };
-main();
+// main();
