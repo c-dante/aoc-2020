@@ -15,7 +15,7 @@ const getBorders = tile => {
 	const left = tile.map(fp.first).join('');
 	const right = tile.map(fp.last).join('');
 
-	return { top, bottom, left, right };
+	return { top, bottom, left, right, xform: [] };
 };
 
 const flipY = tile => ({
@@ -24,6 +24,7 @@ const flipY = tile => ({
 	bottom: fp.reverse(tile.bottom).join(''),
 	left: tile.right,
 	right: tile.left,
+	xform: tile.xform.concat('flipY'),
 });
 const flipX = tile => ({
 	id: tile.id,
@@ -31,6 +32,7 @@ const flipX = tile => ({
 	bottom: tile.top,
 	left: fp.reverse(tile.left).join(''),
 	right: fp.reverse(tile.right).join(''),
+	xform: tile.xform.concat('flipX'),
 });
 const rotate_cw = tile => ({
 	id: tile.id,
@@ -38,6 +40,7 @@ const rotate_cw = tile => ({
 	bottom: fp.reverse(tile.right).join(''),
 	left: tile.bottom,
 	right: tile.top,
+	xform: tile.xform.concat('rotate_cw'),
 });
 
 
@@ -60,13 +63,18 @@ const check = [
 	[flipX, flipY, rotate_cw, rotate_cw],
 	[flipX, flipY, rotate_cw, rotate_cw, rotate_cw],
 ].filter((x, i, collection) => {
-	// Dedupe transformations
+	// Dedupe transformations preferring simpler ones
 	const tile = getBorders(['123', '456', '789']);
 	const base = applyXform(x, tile);
 	for (const j in collection) {
 		if (i > +j) {
 			const other = applyXform(collection[j], tile);
-			if (fp.isEqual(base, other)) {
+			if (
+				base.top === other.top
+				&& base.left === other.left
+				&& base.bottom === other.bottom
+				&& base.right === other.right
+			) {
 				return false;
 			}
 		}
