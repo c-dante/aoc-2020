@@ -155,32 +155,11 @@ const getCorners = (grid, length) => [
 	grid[length - 1][length - 1],
 ];
 
-export const part1 = (input) => {
-	const rx = /Tile (\d+):/;
-	const tiles = util.emptyLineGroupedReduce(input).map(
-		tile => {
-			const id = rx.exec(tile.shift())[1]
-			return ({
-				id: +id,
-				...getBorders(tile),
-			});
-		}
-	);
-
+const buildGrid = (tiles) => {
 	// square arrangement, so sqrt for edge size?
 	const length = Math.sqrt(tiles.length);
-	// console.log(length);
-
-	// Whole square can rotate, so that's fine
-	// Find some stitching of all squares
-
-	// So from a square, candidates are ones with an edge that reverses or normals to my edge
-
-	// Given a square, it's either on an edge or on the center
-	// Corner squares can be continuous etc
 
 	const byId = fp.keyBy('id', tiles);
-	const getPool = (pool) => [...pool].map(id => byId[id]);
 
 	// Start with top left (?)
 	const topLeftPool = tiles.slice();
@@ -216,7 +195,6 @@ export const part1 = (input) => {
 		return grid;
 	};
 
-	console.log(getCoords(length));
 	while (topLeftPool.length) {
 		const topLeft = topLeftPool.pop();
 		const idBag = new Set(tiles.map(x => x.id));
@@ -228,17 +206,36 @@ export const part1 = (input) => {
 
 			const res = solveGrid(grid, getCoords(length), idBag);
 			if (res && isValid(res)) {
-				return getCorners(res, length)
-					.map(x => x.id)
-					.reduce((a, b) => a * b, 1);
+				return res;
 			}
 		}
-		// Seed from top left, try all rotations
-		// console.log(topLeft, getCandidates(topLeft, tiles));
 	}
 
-	// multiply corners
-	return 0;
+	return undefined;
+}
+
+export const part1 = (input) => {
+	const rx = /Tile (\d+):/;
+	const tiles = util.emptyLineGroupedReduce(input).map(
+		tile => {
+			const id = rx.exec(tile.shift())[1]
+			return ({
+				id: +id,
+				...getBorders(tile),
+			});
+		}
+	);
+
+	const grid = buildGrid(tiles);
+	if (!grid) {
+		return 0;
+	}
+
+	// square arrangement, so sqrt for edge size?
+	const length = Math.sqrt(tiles.length);
+	return getCorners(grid, length)
+		.map(x => x.id)
+		.reduce((a, b) => a * b, 1);
 };
 
 export const part2 = (input) => {
