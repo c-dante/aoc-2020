@@ -28,6 +28,10 @@ export const part1 = (input) => {
 
 			ingredients.forEach(i => {
 				acc.allergens[a].add(i);
+				if (!acc.foods[i]) {
+					acc.foods[i] = new Set();
+				}
+				acc.foods[i].add(a);
 			});
 		});
 
@@ -43,6 +47,7 @@ export const part1 = (input) => {
 	}, {
 		constraints: [],
 		allergens: {},
+		foods: {},
 		foodCounts: {},
 	});
 
@@ -59,15 +64,24 @@ export const part1 = (input) => {
 		console.warn('oops');
 	}
 
-
+	const toId = (foodMap) => {
+		const res = fp.sortBy(x => x[0], Object.entries(foodMap))
+			.map(x => x.join('->'))
+			.join(',');
+		return res;
+	}
 	const solve = () => {
+		const attempted = new Set();
 		const queue = sortedConstrain[0].ingredients.map(
 			ingredient => ({ [ingredient]: sortedConstrain[0].allergens[0] }),
 		);
 		while (queue.length) {
-			console.log(queue);
 			const thisMap = queue.pop();
-			console.log('Attempt', thisMap)
+			if (attempted.has(toId(thisMap))) {
+				continue;
+			}
+			const invertMap = fp.invert(thisMap);
+			attempted.add(toId(thisMap));
 
 			// Account for allergens
 			const unassignedAllergens = new Set(Object.keys(allergens));
@@ -79,8 +93,14 @@ export const part1 = (input) => {
 			for (const constrain of sortedConstrain) {
 				const ingredients = constrain.ingredients.filter(ingredient => !thisMap[ingredient]);
 				const allergens = constrain.allergens.filter(x => {
-					return constrain.ingredients.some(ingredient => thisMap[ingredient] === x)
+					return !constrain.ingredients.some(ingredient => thisMap[ingredient] === x)
 				});
+
+				// If an allergen is mapped to a food not in this set, that's an error
+				if (allergens.some(a => invertMap[a])) {
+					canUseCandidates = false;
+					break;
+				}
 
 				// If no allergens left, cannot learn anything more for this constraint
 				if (allergens.length === 0) {
@@ -89,7 +109,6 @@ export const part1 = (input) => {
 
 				if (ingredients.length === 0 && allergens.length > 0) {
 					// This is an invalid configuration, so ignore any work and continue to next
-					console.log('Invalid!', { constrain, ingredients, allergens });
 					canUseCandidates = false;
 					break;
 				}
@@ -97,24 +116,26 @@ export const part1 = (input) => {
 				// Otherwise, can we deduce?
 				if (ingredients.length === 1 && allergens.length === 1) {
 					if (thisMap[ingredients[0]]) {
-						console.log('Invalid!', { constrain, ingredients, allergens });
 						canUseCandidates = false;
 						break;
 					}
 
 					thisMap[ingredients[0]] = allergens[0];
+					invertMap[allergens[0]] = ingredients[0];
 					unassignedAllergens.delete(allergens[0]);
-					candidates.push(thisMap);
 					continue;
 				}
 
 				// Finally, push the possibilities into the queue
 				// console.log('Next: ', { constrain, ingredients, allergens });
-				constrain.ingredients.forEach(ingredient => {
-					constrain.allergens.forEach(a => {
-						candidates.push({
-							[ingredient]: a,
-						});
+				ingredients.forEach(ingredient => {
+					allergens.forEach(a => {
+						if (!thisMap[ingredient] && !invertMap[a]) {
+							candidates.push({
+								[ingredient]: a,
+								...thisMap,
+							});
+						}
 					});
 				});
 			}
@@ -124,41 +145,37 @@ export const part1 = (input) => {
 					return thisMap;
 				}
 
-				queue.push(...candidates.map(c => ({
-					...c,
-					...thisMap,
-				})));
+				queue.push(...candidates);
 			}
 		}
 	}
 	const solvedFoodMap = solve();
-	console.log(solvedFoodMap, foodCounts);
-
 	const noAllergen = Object.keys(foodCounts)
 		.filter(food => !solvedFoodMap[food])
 
-	console.log(noAllergen);
+	console.log(solvedFoodMap);
+	console.log(fp.flow(
+		fp.sortBy(x => x[1]),
+		fp.map(x => x[0]),
+		fp.join(','),
+	)(fp.toPairs(solvedFoodMap)));
 
 	return fp.sum(
 		noAllergen.map(key => foodCounts[key])
 	);
 };
 
-export const part2 = (input) => {
-	const res = input.split('\n').reduce((acc, x) => {
-
-	}, {});
-	return res;
+export const part2 = () => {
 };
 
 
 const main = () => {
 	const input = fs.readFileSync('./input.txt').toString();
-	// console.time('part 1');
+	console.time('part 1');
 	console.log('Part 1', part1(input));
-	// console.timeEnd('part 1');
-	// console.time('part 2');
+	console.timeEnd('part 1');
+	console.time('part 2');
 	console.log('Part 2', part2(input));
-	// console.timeEnd('part 2');
+	console.timeEnd('part 2');
 };
-// main();
+main();
