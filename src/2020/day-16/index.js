@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import * as util from '../util.js';
+import * as util from '../../util.js';
 
 export const part1 = (input) => {
 	const res = input.split('\n').reduce((acc, x) => {
@@ -24,11 +24,11 @@ export const part1 = (input) => {
 		const [_, field, a, b] = /([\w+\s]): ([\d\-]+) or ([\d\-]+)/.exec(x);
 		return {
 			field,
-			low: fp.sortBy(x=> x, a.split('-').map(Number)),
-			high: fp.sortBy(x=> x, b.split('-').map(Number))
+			low: fp.sortBy(x => x, a.split('-').map(Number)),
+			high: fp.sortBy(x => x, b.split('-').map(Number))
 		};
 	})
-	.flatMap(x => [x.low, x.high]);
+		.flatMap(x => [x.low, x.high]);
 
 	const errorRate = nearby
 		.flatMap(x => x.split(','))

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import * as util from '../util.js';
+import * as util from '../../util.js';
 
 const DIRS = [
 	'top',
@@ -350,7 +350,7 @@ export const part2 = (input) => {
 	for (let x = 0; x < orientation[0].length; x++) {
 		for (let y = 0; y < orientation.length; y++) {
 			if (orientation[y][x] === '#') {
-				allCoords.add([x,y].join(','));
+				allCoords.add([x, y].join(','));
 			}
 		}
 	}

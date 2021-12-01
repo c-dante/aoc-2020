@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import * as util from '../util.js';
+import * as util from '../../util.js';
 
 const ACTIVE = '#';
 const INACTIVE = '.';

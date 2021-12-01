@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import * as util from '../util.js';
+import * as util from '../../util.js';
 
 export const part1 = (input, preamble = 25) => {
 	const res = input.split('\n').map(Number).reduce((acc, x) => {

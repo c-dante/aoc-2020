@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import * as util from '../util.js';
+import * as util from '../../util.js';
 import jsep from 'jsep';
 
 const evalNode = node => {

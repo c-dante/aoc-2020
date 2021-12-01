@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import { emptyLineGroupedReduce } from '../util.js';
+import { emptyLineGroupedReduce } from '../../util.js';
 
 const expected = {
 	'byr': x => x.length === 4 && (+x >= 1920 && +x <= 2002),

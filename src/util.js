@@ -35,7 +35,7 @@ export const emptyLineGroupedReduce = (
 		acc.intermediate = reducer(acc.intermediate, row);
 		return acc;
 	}, { outputs: [], intermediate: newIntermediate() })
-	.outputs;
+		.outputs;
 
 ///////////////////////
 // ----- graph ----- //

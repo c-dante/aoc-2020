@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import { formatAsNumbers } from '../util.js';
+import { formatAsNumbers } from '../../util.js';
 
 const process = fp.flow(
 	formatAsNumbers,

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import * as util from '../util.js';
+import * as util from '../../util.js';
 
 const dirs = ['N', 'E', 'S', 'W'];
 
@@ -78,7 +78,7 @@ export const part1 = (input) => {
 				heading: dirs[i],
 			};
 		}
-	}, { coord: start, heading: 'E'});
+	}, { coord: start, heading: 'E' });
 
 	// console.log(res);
 	return Math.abs(res.coord[0]) + Math.abs(res.coord[1]);

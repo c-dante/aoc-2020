@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import * as util from '../util.js';
+import * as util from '../../util.js';
 
 const SEAT = 'L';
 const FLOOR = '.';
@@ -12,17 +12,17 @@ const apply = grid => {
 		(row, y) => row.map(
 			(cell, x) => {
 				if (cell === SEAT &&
-						// Cardinal
-						grid[y][x - 1] !== OCCUPIED &&
-						grid[y][x + 1] !== OCCUPIED &&
-						grid[y - 1]?.[x] !== OCCUPIED &&
-						grid[y + 1]?.[x] !== OCCUPIED &&
-						// Diagonal
-						grid[y - 1]?.[x-1] !== OCCUPIED &&
-						grid[y - 1]?.[x+1] !== OCCUPIED &&
-						grid[y + 1]?.[x+1] !== OCCUPIED &&
-						grid[y + 1]?.[x-1] !== OCCUPIED
-					) {
+					// Cardinal
+					grid[y][x - 1] !== OCCUPIED &&
+					grid[y][x + 1] !== OCCUPIED &&
+					grid[y - 1]?.[x] !== OCCUPIED &&
+					grid[y + 1]?.[x] !== OCCUPIED &&
+					// Diagonal
+					grid[y - 1]?.[x - 1] !== OCCUPIED &&
+					grid[y - 1]?.[x + 1] !== OCCUPIED &&
+					grid[y + 1]?.[x + 1] !== OCCUPIED &&
+					grid[y + 1]?.[x - 1] !== OCCUPIED
+				) {
 					change = true;
 					return OCCUPIED;
 				}
@@ -34,14 +34,14 @@ const apply = grid => {
 						Number(grid[y - 1]?.[x] === OCCUPIED) +
 						Number(grid[y + 1]?.[x] === OCCUPIED) +
 						// Diagonal
-						Number(grid[y - 1]?.[x-1] === OCCUPIED) +
-						Number(grid[y - 1]?.[x+1] === OCCUPIED) +
-						Number(grid[y + 1]?.[x+1] === OCCUPIED) +
-						Number(grid[y + 1]?.[x-1] === OCCUPIED);
-						if (sum >= 4) {
-							change = true;
-							return SEAT;
-						}
+						Number(grid[y - 1]?.[x - 1] === OCCUPIED) +
+						Number(grid[y - 1]?.[x + 1] === OCCUPIED) +
+						Number(grid[y + 1]?.[x + 1] === OCCUPIED) +
+						Number(grid[y + 1]?.[x - 1] === OCCUPIED);
+					if (sum >= 4) {
+						change = true;
+						return SEAT;
+					}
 				}
 
 				return cell;
@@ -82,7 +82,7 @@ const apply2 = (grid, vision) => {
 						throw new Error('???');
 					}
 					if (fp.sum(see.map(([r, c]) => Number(grid[r]?.[c] === OCCUPIED))) >= 5) {
-						change =  true;
+						change = true;
 						return SEAT;
 					}
 				}
@@ -93,7 +93,7 @@ const apply2 = (grid, vision) => {
 						throw new Error('???');
 					}
 					if (fp.sum(see.map(([r, c]) => Number(grid[r]?.[c] === OCCUPIED))) === 0) {
-						change =  true;
+						change = true;
 						return OCCUPIED;
 					}
 				}

@@ -1,6 +1,6 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import * as util from '../util.js';
+import * as util from '../../util.js';
 
 const score = fp.flow(
 	fp.reverse,
@@ -22,7 +22,7 @@ export const part1 = (input) => {
 		}
 	}
 
-	while(p1.length && p2.length) {
+	while (p1.length && p2.length) {
 		playRound();
 	}
 
