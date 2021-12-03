@@ -4,6 +4,17 @@ export const log = (x) => console.dir(x, { depth: null })
 
 export const formatAsNumbers = numbers => numbers.split('\n').map(Number);
 
+export const sliding = n => {
+	const window = [];
+	return fp.map((x) => {
+		window.push(x);
+		if (window.length > n) {
+			window.shift();
+		}
+		return window.slice();
+	});
+};
+
 /**
  * Helper to process input where lines are records and empty line "produces" a group
  *
