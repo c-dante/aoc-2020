@@ -16,6 +16,38 @@ export const sliding = n => {
 };
 
 /**
+ * Takes a string with rows as new lines where
+ * each line is assumed split by whitespace, like `1  3   5  6` with no alignment
+ * Produces a parsed 2D array of
+ * @param {String} raw - Chunk of text
+ * @param {Fn<String, T>} [cellParse=fp.identity] - Parse method for cell value in grid
+ * @param {String|RegExp} [cellDelin=/\s+/] - Cell deliniation, default to whitespace
+ * @returns
+ */
+export const parseGrid = (
+	raw,
+	cellParse = fp.identity,
+	cellDelin = /\s+/,
+) => {
+	const indexed = {};
+	const grid = raw.split(/\n/)
+		.map((row, y) => row.split(cellDelin)
+			.filter(fp.negate(fp.isEmpty))
+			.map((cell, x) => {
+				const pasrsed = cellParse(cell);
+				indexed[pasrsed] = { x, y };
+				return pasrsed;
+			})
+		);
+
+	return {
+		raw,
+		grid,
+		indexed,
+	};
+}
+
+/**
  * Helper to process input where lines are records and empty line "produces" a group
  *
  * @template Acc
