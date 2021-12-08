@@ -183,6 +183,16 @@ export const castRay = (grid, cb, y, x, dy, dx) => {
 	return undefined;
 };
 
+export const dxDy = (x1, y1, x2, y2) => {
+	const yD = y2 - y1;
+	const xD = x2 - x1;
+	const mag = Math.sqrt(xD * xD + yD * yD);
+	return [
+		xD / mag,
+		yD / mag,
+	];
+};
+
 // ------
 export const get2dGrid = (length) => Array.from({ length })
 	.map(() => Array.from({ length }));
