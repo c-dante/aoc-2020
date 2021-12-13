@@ -15,6 +15,8 @@ export const sliding = n => {
 	});
 };
 
+export const printArr = x => x.map(z => z.join('')).join('\n');
+
 /**
  * Takes a string with rows as new lines where
  * each line is assumed split by whitespace, like `1  3   5  6` with no alignment
@@ -83,6 +85,10 @@ export const emptyLineGroupedReduce = (
 ///////////////////////
 // ----- graph ----- //
 ///////////////////////
+
+// NodeId = string
+// Node = { id: NodeId }
+// Edge = [ NodeId, NodeId ]
 export const toGraph = (nodes, edges) => {
 	const byId = fp.keyBy('id', nodes);
 	const children = fp.flow(
