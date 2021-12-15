@@ -9,6 +9,7 @@
   "dependencies": {
     "js-combinatorics": "1.4.5",
     "jsep": "0.3.5",
-    "lodash": "^4.17.20"
+    "lodash": "^4.17.20",
+    "node-dijkstra": "2.5.0"
   }
 }

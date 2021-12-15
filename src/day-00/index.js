@@ -8,12 +8,7 @@ const process = fp.flow(
 );
 
 export const part1 = (input) => {
-	const res = process(input)
-		.reduce((acc, x) => {
-			return acc;
-		}, {
-
-		});
+	const res = process(input);
 	return res;
 };
 
@@ -23,12 +18,7 @@ const process2 = fp.flow(
 );
 
 export const part2 = (input) => {
-	const res = process2(input)
-		.reduce((acc, x) => {
-			return acc;
-		}, {
-
-		});
+	const res = process2(input);
 	return res;
 };
 
