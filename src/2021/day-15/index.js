@@ -1,6 +1,5 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
-import Graph from 'node-dijkstra';
 import Heap from 'heap';
 import * as util from '../../util.js';
 

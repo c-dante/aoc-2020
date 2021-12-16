@@ -1,6 +1,7 @@
 import fs from 'fs';
 import fp from 'lodash/fp.js';
 import * as util from '../../util.js';
+import Heap from 'heap';
 
 const process = fp.flow(
 	fp.split('\n'),
