@@ -48,7 +48,7 @@ const parseBits = (bits, maxPackets = -1) => {
 	return packets;
 }
 
-const process = fp.flow(
+export const process = fp.flow(
 	fp.split(''),
 	fp.flatMap(hex => parseInt(hex, 16)
 		.toString(2)
@@ -81,23 +81,34 @@ export const part2 = (input) => {
 					.map(go)
 					.reduce((a, b) => a * b, 1);
 			case 2:
+				if (node.subPackets.length < 1) {
+					console.log(node);
+					throw new Error('oops min');
+				}
 				return node.subPackets
 					.map(go)
 					.reduce((a, b) => Math.min(a, b), Number.MAX_SAFE_INTEGER);
 			case 3:
+				if (node.subPackets.length < 1) {
+					console.log(node);
+					throw new Error('oops max');
+				}
 				return node.subPackets
 					.map(go)
 					.reduce((a, b) => Math.max(a, b), Number.MIN_SAFE_INTEGER);
 			case 4: return node.value;
 			case 5: {
+				if (node.subPackets.length !== 2) throw new Error('oops >');
 				const [a, b] = node.subPackets.map(go);
 				return a > b ? 1 : 0;
 			}
 			case 6: {
+				if (node.subPackets.length !== 2) throw new Error('oops <');
 				const [a, b] = node.subPackets.map(go);
 				return a < b ? 1 : 0;
 			}
 			case 7: {
+				if (node.subPackets.length !== 2) throw new Error('oops =');
 				const [a, b] = node.subPackets.map(go);
 				return a === b ? 1 : 0;
 			}
