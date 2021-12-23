@@ -90,7 +90,7 @@ const solveMapping = (matches) => {
 		)(candidates);
 		// Drop weird outlier
 		if (max < averageMax) {
-			console.log(max);
+			// console.log(max);
 		} else {
 			mapping[source] = max[0];
 		}
@@ -297,7 +297,7 @@ export const part2 = (input) => {
 
 const main = () => {
 	const input = fs.readFileSync('./input.txt').toString();
-	// console.time('part 1');
+	console.time('part 1');
 
 	let avg = 0;
 	let min = 100000;
@@ -311,7 +311,7 @@ const main = () => {
 	}
 	console.log(avg / 500, min, observed);
 	console.log('Part 1', part1(input));
-	// console.timeEnd('part 1');
+	console.timeEnd('part 1');
 	// console.time('part 2');
 	// console.log('Part 2', part2(input));
 	// console.timeEnd('part 2');

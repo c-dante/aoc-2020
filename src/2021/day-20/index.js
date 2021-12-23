@@ -107,7 +107,7 @@ export const part2 = (input) => {
 	const res = process(input);
 	let step = res.map;
 	let flick = '.';
-	for (let i = 0; i < 50; i++) {
+	for (let i = 0; i < 50cd; i++) {
 		if (res.lookup[0] === '#') {
 			flick = i % 2 ? '#' : '.';
 		}
